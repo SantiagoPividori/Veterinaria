@@ -1,7 +1,8 @@
 package com.pividori.Veterinaria.model.utility;
 
-public enum Role {
+public enum RoleEnum {
     CUSTOMER,
     SECRETARY,
-    VETERINARIAN
+    VETERINARIAN,
+    ADMIN
 }

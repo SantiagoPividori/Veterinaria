@@ -1,6 +1,6 @@
 package com.pividori.Veterinaria.model;
 
-import com.pividori.Veterinaria.model.utility.State;
+import com.pividori.Veterinaria.model.utility.StateEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,17 +27,17 @@ public class Turn {
     private User veterinarian;
     private String reasonConsultation;
     @Enumerated(EnumType.STRING)
-    private State stateTurn;
+    private StateEnum stateTurn;
 
     public Turn(LocalDateTime dot, Pet pet, User veterinarian, String reasonConsultation) {
         this.dot = dot;
         this.pet = pet;
         this.veterinarian = veterinarian;
         this.reasonConsultation = reasonConsultation;
-        this.stateTurn = State.RESERVED;
+        this.stateTurn = StateEnum.RESERVED;
     }
 
-    public Turn(LocalDateTime dot, Pet pet, User veterinarian, String reasonConsultation, State stateTurn) {
+    public Turn(LocalDateTime dot, Pet pet, User veterinarian, String reasonConsultation, StateEnum stateTurn) {
         this.dot = dot;
         this.pet = pet;
         this.veterinarian = veterinarian;

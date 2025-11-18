@@ -1,6 +1,6 @@
 package com.pividori.Veterinaria.model.utility;
 
-public enum State {
+public enum StateEnum {
     RESERVED,
     CANCELED,
     COMPLETED

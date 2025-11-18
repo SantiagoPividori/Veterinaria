@@ -5,15 +5,22 @@ import com.pividori.Veterinaria.dto.UserResponse;
 import com.pividori.Veterinaria.exception.UserNotFoundException;
 import com.pividori.Veterinaria.model.User;
 import com.pividori.Veterinaria.repository.IUserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class UserService implements IUserService {
 
     private final IUserRepository userRepository;
 
-    public UserService(IUserRepository userRepository) {
-        this.userRepository = userRepository;
+    @Override
+    public User findUserByUsername(String username){
+        return userRepository.findByUsername(username);
     }
 
     @Override
@@ -24,18 +31,25 @@ public class UserService implements IUserService {
                 createdUserRequest.email(),
                 createdUserRequest.password(), //WARNING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 createdUserRequest.dob(),
-                createdUserRequest.role()
+                createdUserRequest.roles()
         ));
 
+        log.info("Saving new user to the database");
+
         return new UserResponse(
-                savedUser.getId(), savedUser.getName(), savedUser.getLastname(), savedUser.getEmail(), savedUser.getDob(), savedUser.getRole()
+                savedUser.getId(), savedUser.getName(), savedUser.getLastname(), savedUser.getEmail(), savedUser.getDob(), savedUser.getRoles()
         );
     }
 
     @Override
     public UserResponse getUserById(Long id) {
 
-        User foundUser = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+        User foundUser = userRepository.findById(id).orElseThrow(() -> {
+            log.error("Error searching user with id: {}", id);
+            return new UserNotFoundException(id);
+        });
+
+        log.info("Found user {}", foundUser.getName());
 
         return new UserResponse(
                 foundUser.getId(),
@@ -43,17 +57,19 @@ public class UserService implements IUserService {
                 foundUser.getLastname(),
                 foundUser.getEmail(),
                 foundUser.getDob(),
-                foundUser.getRole()
+                foundUser.getRoles()
         );
     }
 
     @Override
     public void deletedUserById(Long id) {
-
+        userRepository.delete(userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id)));
     }
 
     @Override
-    public UserResponse editUser(Long id) {
-        return null;
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(user -> new UserResponse(user.getId(), user.getName(), user.getLastname(), user.getEmail(), user.getDob(), user.getRoles()))
+                .toList();
     }
 }

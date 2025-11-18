@@ -1,8 +1,9 @@
 package com.pividori.Veterinaria.dto;
 
-import com.pividori.Veterinaria.model.utility.Role;
+import com.pividori.Veterinaria.model.Role;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 public record CreateUserRequest(
         String name,
@@ -10,6 +11,6 @@ public record CreateUserRequest(
         String email,
         String password,
         LocalDate dob,
-        Role role
+        Set<Role> roles
 ) {
 }
