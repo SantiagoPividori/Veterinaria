@@ -1,4 +1,15 @@
 package com.pividori.Veterinaria.dto;
 
-public class RegisterRequest {
+import java.time.LocalDate;
+
+public record RegisterRequest(
+
+        String name,
+        String lastname,
+        String username,
+        String email,
+        String password,
+        LocalDate dob
+
+) {
 }
