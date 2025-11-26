@@ -41,6 +41,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserResponse findUserByEmail(String email) {
+
+        User foundUser = userRepository
+                .findUserByEmail(email)
+                .orElseThrow(() -> {
+                    log.warn("Email {} is not found", email);
+                    return new UserNotFoundException(email);
+                });
+
+        return UserMapper.toResponse(foundUser);
+    }
+
+    @Override
     public UserResponse registerUser(CreateUserRequest createdUserRequest) {
 
         //Verificaciones.
@@ -67,7 +80,6 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toResponse(savedUser);
 
     }
-
 
     private void initializeSecurityFlags(User newUser) {
         newUser.setEnabled(true);

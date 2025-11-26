@@ -11,7 +11,8 @@ public interface UserService {
 
     UserResponse findUserByUsername(String username);
 
-    UserResponse registerUser(CreateUserRequest createdUserRequest);
+    UserResponse findUserByEmail(String email);
 
+    UserResponse registerUser(CreateUserRequest createdUserRequest);
 
 }
