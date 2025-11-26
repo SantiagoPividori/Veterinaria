@@ -26,9 +26,18 @@ public class UserServiceImpl implements UserService {
     private final RoleService roleService;
 
     @Override
-    public User findUserByUsername(String username) {
-        return userRepository.findUserByUsername(username)
-                .orElseThrow(() -> new RuntimeException("ERROR"));
+    public UserResponse findUserByUsername(String username) {
+
+        User foundUser = userRepository
+                .findUserByUsername(username)
+                .orElseThrow(() -> {
+                    log.warn("User {} not found", username);
+                    return new UserNotFoundException(username);
+                    //Acá necesitamos el return porque como la lambda no es de una sola línea, necesitamos aclarar cual vamos a devolver DE LA LAMBDA.
+                });
+
+        return UserMapper.toResponse(foundUser);
+
     }
 
     @Override

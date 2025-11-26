@@ -9,8 +9,9 @@ import java.util.List;
 
 public interface UserService {
 
-    User findUserByUsername(String username);
+    UserResponse findUserByUsername(String username);
 
     UserResponse registerUser(CreateUserRequest createdUserRequest);
+
 
 }
