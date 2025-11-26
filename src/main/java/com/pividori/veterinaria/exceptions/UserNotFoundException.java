@@ -2,8 +2,8 @@ package com.pividori.veterinaria.exceptions;
 
 public class UserNotFoundException extends RuntimeException {
 
-    public UserNotFoundException(String username) {
-        super("Don´t found user with this username: " + username);
+    public UserNotFoundException(String field, String value) {
+        super("User not found by " + field + ": " + value);
     }
 
 }

@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
                 .findUserByUsername(username)
                 .orElseThrow(() -> {
                     log.warn("User {} not found", username);
-                    return new UserNotFoundException(username);
+                    return new UserNotFoundException("username", username);
                     //Acá necesitamos el return porque como la lambda no es de una sola línea, necesitamos aclarar cual vamos a devolver DE LA LAMBDA.
                 });
 
@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
                 .findUserByEmail(email)
                 .orElseThrow(() -> {
                     log.warn("Email {} is not found", email);
-                    return new UserNotFoundException(email);
+                    return new UserNotFoundException("email", email);
                 });
 
         return UserMapper.toResponse(foundUser);
