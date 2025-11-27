@@ -1,10 +1,8 @@
 package com.pividori.veterinaria.services;
 
 import com.pividori.veterinaria.dtos.CreateUserRequest;
-import com.pividori.veterinaria.dtos.LoginRequest;
 import com.pividori.veterinaria.dtos.UserResponse;
 import com.pividori.veterinaria.exceptions.EmailAlreadyTakenException;
-import com.pividori.veterinaria.exceptions.PaswordIncorrectException;
 import com.pividori.veterinaria.exceptions.UserNotFoundException;
 import com.pividori.veterinaria.exceptions.UsernameAlreadyTakenException;
 import com.pividori.veterinaria.mappers.UserMapper;
@@ -51,6 +49,16 @@ public class UserServiceImpl implements UserService {
                 });
 
         return UserMapper.toResponse(foundUser);
+    }
+
+    private User findUserEntityByIdOrThrow(Long id) {
+
+        return userRepository
+                .findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Id {} is not found", id);
+                    return new UserNotFoundException("id", id.toString());
+                });
     }
 
     @Override
