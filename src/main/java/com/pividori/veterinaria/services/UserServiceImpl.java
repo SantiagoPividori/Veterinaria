@@ -1,6 +1,7 @@
 package com.pividori.veterinaria.services;
 
 import com.pividori.veterinaria.dtos.CreateUserRequest;
+import com.pividori.veterinaria.dtos.UpdateUserRequest;
 import com.pividori.veterinaria.dtos.UserResponse;
 import com.pividori.veterinaria.exceptions.EmailAlreadyTakenException;
 import com.pividori.veterinaria.exceptions.UserNotFoundException;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -53,11 +55,39 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteById(Long id) {
 
-        User deleteUser = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("id", id.toString()));
+        User deleteUser = findUserEntityByIdOrThrow(id);
 
         userRepository.delete(deleteUser);
         log.info("Deleted user with id: {}", id);
+    }
+
+    @Override
+    public UserResponse update(Long id, UpdateUserRequest updateUserRequest) {
+
+        User foundUser = findUserEntityByIdOrThrow(id);
+
+        if(StringUtils.hasText(updateUserRequest.name()) && !foundUser.getName().equals(updateUserRequest.name())) {
+            foundUser.setName(updateUserRequest.name());
+        }
+        if(StringUtils.hasText(updateUserRequest.lastname()) && !foundUser.getLastname().equals(updateUserRequest.lastname())) {
+            foundUser.setLastname(updateUserRequest.lastname());
+        }
+
+        if(StringUtils.hasText(updateUserRequest.email()) && !foundUser.getEmail().equals(updateUserRequest.email())) {
+            if (userRepository.existsByEmail(updateUserRequest.email())) {
+                log.warn("Email {} is already taken", updateUserRequest.email());
+                throw new EmailAlreadyTakenException(updateUserRequest.email());
+            }
+            foundUser.setEmail(updateUserRequest.email());
+        }
+
+        if(updateUserRequest.dob() != null && !foundUser.getDob().isEqual(updateUserRequest.dob())) {
+            foundUser.setDob(updateUserRequest.dob());
+        }
+
+        User savedUser = userRepository.save(foundUser);
+
+        return UserMapper.toResponse(savedUser);
     }
 
     @Override
@@ -89,8 +119,7 @@ public class UserServiceImpl implements UserService {
 
     private User findUserEntityByIdOrThrow(Long id) {
 
-        return userRepository
-                .findById(id)
+        return userRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("Id {} is not found", id);
                     return new UserNotFoundException("id", id.toString());

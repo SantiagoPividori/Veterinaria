@@ -29,5 +29,4 @@ public class UserMapper {
                 .role(defaultRole)
                 .build();
     }
-
 }
