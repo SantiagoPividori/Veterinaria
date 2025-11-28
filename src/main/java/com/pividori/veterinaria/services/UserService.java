@@ -13,6 +13,8 @@ public interface UserService {
 
     UserResponse findByEmail(String email);
 
+    void deleteById(Long id);
+
     UserResponse register(CreateUserRequest createdUserRequest);
 
 }

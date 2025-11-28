@@ -50,14 +50,14 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toResponse(foundUser);
     }
 
-    private User findUserEntityByIdOrThrow(Long id) {
+    @Override
+    public void deleteById(Long id) {
 
-        return userRepository
-                .findById(id)
-                .orElseThrow(() -> {
-                    log.warn("Id {} is not found", id);
-                    return new UserNotFoundException("id", id.toString());
-                });
+        User deleteUser = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("id", id.toString()));
+
+        userRepository.delete(deleteUser);
+        log.info("Deleted user with id: {}", id);
     }
 
     @Override
@@ -85,6 +85,16 @@ public class UserServiceImpl implements UserService {
 
         return UserMapper.toResponse(savedUser);
 
+    }
+
+    private User findUserEntityByIdOrThrow(Long id) {
+
+        return userRepository
+                .findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Id {} is not found", id);
+                    return new UserNotFoundException("id", id.toString());
+                });
     }
 
     private void initializeSecurityFlags(User newUser) {
