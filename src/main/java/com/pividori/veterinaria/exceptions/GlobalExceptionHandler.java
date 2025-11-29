@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<String> handlePasswordIncorrect(PaswordIncorrectException ex) {
+    public ResponseEntity<String> handlePasswordIncorrect(PasswordIncorrectException ex) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(ex.getMessage());

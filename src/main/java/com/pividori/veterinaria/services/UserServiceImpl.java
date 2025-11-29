@@ -1,11 +1,10 @@
 package com.pividori.veterinaria.services;
 
+import com.pividori.veterinaria.dtos.ChangePasswordRequest;
 import com.pividori.veterinaria.dtos.CreateUserRequest;
 import com.pividori.veterinaria.dtos.UpdateUserRequest;
 import com.pividori.veterinaria.dtos.UserResponse;
-import com.pividori.veterinaria.exceptions.EmailAlreadyTakenException;
-import com.pividori.veterinaria.exceptions.UserNotFoundException;
-import com.pividori.veterinaria.exceptions.UsernameAlreadyTakenException;
+import com.pividori.veterinaria.exceptions.*;
 import com.pividori.veterinaria.mappers.UserMapper;
 import com.pividori.veterinaria.models.Role;
 import com.pividori.veterinaria.models.User;
@@ -66,14 +65,15 @@ public class UserServiceImpl implements UserService {
 
         User foundUser = findUserEntityByIdOrThrow(id);
 
-        if(StringUtils.hasText(updateUserRequest.name()) && !foundUser.getName().equals(updateUserRequest.name())) {
+        if (StringUtils.hasText(updateUserRequest.name()) && !foundUser.getName().equals(updateUserRequest.name())) {
             foundUser.setName(updateUserRequest.name());
         }
-        if(StringUtils.hasText(updateUserRequest.lastname()) && !foundUser.getLastname().equals(updateUserRequest.lastname())) {
+
+        if (StringUtils.hasText(updateUserRequest.lastname()) && !foundUser.getLastname().equals(updateUserRequest.lastname())) {
             foundUser.setLastname(updateUserRequest.lastname());
         }
 
-        if(StringUtils.hasText(updateUserRequest.email()) && !foundUser.getEmail().equals(updateUserRequest.email())) {
+        if (StringUtils.hasText(updateUserRequest.email()) && !foundUser.getEmail().equals(updateUserRequest.email())) {
             if (userRepository.existsByEmail(updateUserRequest.email())) {
                 log.warn("Email {} is already taken", updateUserRequest.email());
                 throw new EmailAlreadyTakenException(updateUserRequest.email());
@@ -81,13 +81,37 @@ public class UserServiceImpl implements UserService {
             foundUser.setEmail(updateUserRequest.email());
         }
 
-        if(updateUserRequest.dob() != null && !foundUser.getDob().isEqual(updateUserRequest.dob())) {
+        if (updateUserRequest.dob() != null && !foundUser.getDob().isEqual(updateUserRequest.dob())) {
             foundUser.setDob(updateUserRequest.dob());
         }
 
         User savedUser = userRepository.save(foundUser);
 
         return UserMapper.toResponse(savedUser);
+    }
+
+
+    //ToDo: Verificar largo/fuerza del password.
+    @Override
+    public UserResponse changePassword(Long id, ChangePasswordRequest changePasswordRequest) {
+
+        User foundUser = findUserEntityByIdOrThrow(id);
+
+        if (!passwordEncoder.matches(changePasswordRequest.currentPassword(), foundUser.getPassword())) {
+            throw new PasswordIncorrectException(foundUser.getUsername());
+        }
+
+        if (changePasswordRequest.currentPassword().equals(changePasswordRequest.newPassword())) {
+            throw new PasswordEqualsException();
+        }
+
+        foundUser.setPassword(passwordEncoder.encode(changePasswordRequest.newPassword()));
+
+        userRepository.save(foundUser);
+
+        log.info("Password changed successfully for user with id {}", id);
+
+        return UserMapper.toResponse(foundUser);
     }
 
     @Override
