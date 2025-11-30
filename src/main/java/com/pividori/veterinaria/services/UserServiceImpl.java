@@ -90,7 +90,6 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toResponse(savedUser);
     }
 
-
     //ToDo: Verificar largo/fuerza del password.
     @Override
     public UserResponse changePassword(Long id, ChangePasswordRequest changePasswordRequest) {
