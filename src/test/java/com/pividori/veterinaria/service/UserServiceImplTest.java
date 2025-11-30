@@ -22,8 +22,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 //Esto le dice a JUnit que antes de cada test inicie los mocks y el objeto a testear.
 @ExtendWith(MockitoExtension.class)
@@ -112,6 +111,41 @@ public class UserServiceImplTest {
 
         }
 
+    }
+
+    @Nested
+    class DeleteByIdTest {
+
+        @Test
+        void deleteById_shouldDeleteUser_whenUserExist() {
+
+            Long id = 1L;
+            User user = new User();
+            ReflectionTestUtils.setField(user, "id", id);
+
+            given(userRepository.findById(id))
+                    .willReturn(Optional.of(user));
+
+            userServiceImpl.deleteById(id);
+            verify(userRepository).findById(id);
+            verify(userRepository).delete(user);
+            verifyNoMoreInteractions(userRepository);
+        }
+
+        @Test
+        void deleteById_shouldThrowUserNotFoundException_whenUserDoesNotExist () {
+            Long id = 1L;
+
+            given(userRepository.findById(id))
+                    .willReturn(Optional.empty());
+
+            assertThrows(UserNotFoundException.class,
+                    () -> userServiceImpl.deleteById(id));
+
+            verify(userRepository).findById(id);
+            verify(userRepository, never()).delete(any(User.class));
+            verifyNoMoreInteractions(userRepository);
+        }
     }
 
     @Nested
