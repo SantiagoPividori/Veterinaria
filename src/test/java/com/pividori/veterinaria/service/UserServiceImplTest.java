@@ -2,6 +2,7 @@ package com.pividori.veterinaria.service;
 
 import com.pividori.veterinaria.dtos.ChangePasswordRequest;
 import com.pividori.veterinaria.dtos.UserResponse;
+import com.pividori.veterinaria.exceptions.PasswordEqualsException;
 import com.pividori.veterinaria.exceptions.PasswordIncorrectException;
 import com.pividori.veterinaria.models.User;
 import com.pividori.veterinaria.repositorys.UserRepository;
@@ -40,11 +41,10 @@ public class UserServiceImplTest {
     @Test
     void changePassword_shouldChangePassword_whenCurrentIsCorrectAndNewIsDifferent() {
         //Creamos las variables necesarias para el test.
-        Long userId = 1L;
         ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest("oldPass", "newPass");
         User user = new User();
         //Esto lo utilizamos porque no tenemos set en ID en la clase User, con esto seteamos el ID del user solo en el test.
-        ReflectionTestUtils.setField(user, "id", userId);
+        ReflectionTestUtils.setField(user, "id", 1L);
         user.setUsername("pivissj");
         user.setPassword("oldPassEncoded");
         String oldPassEncoded = user.getPassword();
@@ -85,7 +85,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void changePassword_shouldPasswordIncorrect_whenCurrentIsDiferent() {
+    void changePassword_shouldThrowPasswordIncorrectException_whenCurrentIsDifferent() {
 
         ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest("oldPass", "newPass");
         User user = new User();
@@ -110,6 +110,31 @@ public class UserServiceImplTest {
         verify(userRepository).findById(user.getId());
         verify(passwordEncoder).matches(changePasswordRequest.currentPassword(), user.getPassword());
         //Verificamos que nunca se haga el encode y el save.
+        verify(passwordEncoder, never()).encode(any(String.class));
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void changePassword_shouldThrowPasswordEqualsException_NewPasswordEqualsCurrent() {
+
+        //Variables necesarias.
+        ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest("oldPass", "oldPass");
+        User user = new User();
+        ReflectionTestUtils.setField(user, "id", 1L);
+        user.setUsername("pivissj");
+        user.setPassword("oldPassEncoded");
+
+        //Configuraciónes.
+        given(userRepository.findById(user.getId()))
+                .willReturn(Optional.of(user));
+
+        given(passwordEncoder.matches(changePasswordRequest.currentPassword(), user.getPassword()))
+                .willReturn(true);
+
+        //Verificaciones.
+        assertThrows(PasswordEqualsException.class,
+                () -> userServiceImpl.changePassword(user.getId(), changePasswordRequest));
+        assertEquals("oldPassEncoded", user.getPassword());
         verify(passwordEncoder, never()).encode(any(String.class));
         verify(userRepository, never()).save(any(User.class));
     }
