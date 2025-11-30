@@ -50,7 +50,8 @@ public class UserServiceImplTest {
             User user = new User();
             user.setUsername(username);
 
-            given(userRepository.findByUsername(username)).willReturn(Optional.of(user));
+            given(userRepository.findByUsername(username))
+                    .willReturn(Optional.of(user));
 
             // Act
             UserResponse userResponse = userServiceImpl.findByUsername(username);
@@ -62,7 +63,7 @@ public class UserServiceImplTest {
         }
 
         @Test
-        void findByUsername_shouldThrowUserNotFoundException_whenUserNotDoesExist() {
+        void findByUsername_shouldThrowUserNotFoundException_whenUserDoesNotExist() {
 
             String username = "pivissj";
 
@@ -74,6 +75,43 @@ public class UserServiceImplTest {
             verify(userRepository).findByUsername(username);
 
         }
+    }
+
+    @Nested
+    class FindByEmailTest {
+
+        @Test
+        void findByEmail_shouldReturnUserResponse_whenUserExist() {
+
+            String email = "pividori@ejemplo.com";
+            User user = new User();
+            user.setEmail(email);
+
+            given(userRepository.findByEmail(email))
+                    .willReturn(Optional.of(user));
+
+            UserResponse userResponse = userServiceImpl.findByEmail(email);
+
+            verify(userRepository).findByEmail(email);
+            assertNotNull(userResponse);
+            assertEquals(email, user.getEmail());
+
+        }
+
+        @Test
+        void findByEmail_shouldThrowUserNotFoundException_whenUserDoesNotExist() {
+
+            String email = "pividori@example.com";
+
+            given(userRepository.findByEmail(email))
+                    .willReturn(Optional.empty());
+
+            assertThrows(UserNotFoundException.class,
+                    () -> userServiceImpl.findByEmail(email));
+            verify(userRepository).findByEmail(email);
+
+        }
+
     }
 
     @Nested
