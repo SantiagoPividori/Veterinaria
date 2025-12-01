@@ -1,6 +1,7 @@
 package com.pividori.veterinaria.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -22,19 +23,33 @@ public class User {
     @Setter(AccessLevel.NONE)
     private Long id;
     @Column(nullable = false)
+    @NotBlank(message = "Name is required")
     private String name;
     @Column(nullable = false)
+    @NotBlank(message = "Lastname is required")
     private String lastname;
     @Column(unique = true, nullable = false)
+    @NotBlank(message = "Username is required")
+    @Size(min = 3, max = 20, message = "Username must be 3-20 characters long")
     private String username;
     @Column(unique = true, nullable = false)
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email is invalid")
     private String email;
     @Column(nullable = false)
+    @NotBlank(message = "Password is required")
+    @Pattern(
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#._-])[A-Za-z\\d@$!%*?&#._-]{8,64}$",
+            message = "Password must be 8-64 characters long and include at least one lowercase letter, one uppercase letter, one digit and one special character"
+    )
     private String password;
     @Column(name = "day_of_birth", nullable = false)
+    @NotNull(message = "Date of birth is required")
+    @Past
     private LocalDate dob;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
+    @NotBlank(message = "Role is required")
     private Role role;
     @Column(name = "is_enabled", nullable = false)
     private boolean isEnabled;

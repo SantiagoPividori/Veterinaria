@@ -24,6 +24,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
+
+//ToDo: #Añadir test de update y register.
+
 //Esto le dice a JUnit que antes de cada test inicie los mocks y el objeto a testear.
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
