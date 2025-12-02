@@ -11,6 +11,8 @@ public interface UserService {
 
     UserResponse findByEmail(String email);
 
+    List<UserResponse> findAll();
+
     void deleteById(Long id);
 
     UserResponse update(Long id, UpdateUserRequest updateUserRequest);

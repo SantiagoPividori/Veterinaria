@@ -15,6 +15,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 //ToDo: #Añadir validaciónes.
 
 @Service
@@ -51,6 +54,15 @@ public class UserServiceImpl implements UserService {
                 });
 
         return UserMapper.toResponse(foundUser);
+    }
+
+    @Override
+    public List<UserResponse> findAll() {
+
+        return userRepository.findAll()
+                .stream()
+                .map(UserMapper::toResponse)
+                .toList();
     }
 
     @Override
