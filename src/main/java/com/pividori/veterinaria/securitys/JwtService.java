@@ -2,83 +2,82 @@ package com.pividori.veterinaria.securitys;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.Map;
-import java.util.function.Function;
 
 //TODO: #Poner la SECRET_KEY en una variable de entorno.
 
+//Firma y valída tokens, también extrae la información.
 @Service
 public class JwtService {
 
-    //Creamos la key secreta. Esto NO deberia estar acá, es provisional. Necesitamos una variable de entorno en application.properties.
-    private static final String SECRET_KEY = "6a8d76fcbaf94025973d1551a5cbb3946a8d76fcbaf94025973d1551a5cbb394";
+    @Value("${security.jwt.secret-key}")
+    private String secretKey;
+    @Value("${security.jwt.expiration}")
+    private long expirationMs;
+    @Value("${security.jwt.refresh.expiration}")
+    private long refreshExpirationMs;
 
-    private SecretKey getSignInKey(){
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+    //Con este metodo transformamos el string a una key válida para utilizar
+    private SecretKey getSigningKey(){
+        //Pasamos él string a un array de bytes porque los algoritmos de firma trabajan con byte no con string
+        byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
+        //Es un helper de JJWT que arma un objeto Key compatible con HMAC(HS256).
+        //Valida, entre otras cosas, que la key tenga suficiente longitud para ser segura.
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String extractUsername(String token){
-        return extractClaim(token, Claims::getSubject);
+    public String generateToken(UserDetails userDetails) {
+        return Jwts.builder()
+                //De quién es este token?
+                .subject(userDetails.getUsername())
+                //Claim es una parte del payload, que sería toda la información que mandamos, entonces esta es una parte de toda la información.
+                .claim("role", userDetails.getAuthorities().iterator().next().getAuthority())
+                //Cuando creamos él token
+                .issuedAt(new Date(System.currentTimeMillis()))
+                //Cuando expira el token
+                .expiration(new Date(System.currentTimeMillis() + expirationMs))
+                //Firmado con: getSigningKey(), que sería nuestra secret key.
+                .signWith(getSigningKey())
+                //¿Resultado? Un string con toda la información.
+                .compact();
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> resolver) {
-        final Claims claims = extractAllClaims(token);
-        return resolver.apply(claims);
+    public String extractUsername(String token){
+        //Con esto leemos el sub del token. El sub sería el subject(de quien es el token)
+        return extractAllClaims(token).getSubject();
+    }
+
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    }
+
+    private boolean isTokenExpired(String token) {
+        return extractAllClaims(token).getExpiration().before(new Date());
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts
-                .parser()
-                .verifyWith(getSignInKey())
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
     }
 
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(Map.of(), userDetails);
-    }
-
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        long now = System.currentTimeMillis();
-        return Jwts
-                .builder()
-                .claims(extraClaims)
-                .subject(userDetails.getUsername())
-                .issuedAt(new Date(now))
-                .expiration(new Date(now + 1000 * 60 * 60 * 4)) // 4 horas
-                .signWith(getSignInKey())
-                .compact();
-    }
-
-    public String generateRefreshToken(UserDetails userDetails) {
-        long now = System.currentTimeMillis();
-        long refreshExpirationMs = 1000L * 60 * 60 * 24 * 7; // 7 días
-
+    private String generateRefreshToken(UserDetails userDetails) {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
-                .issuedAt(new Date(now))
-                .expiration(new Date(now + refreshExpirationMs))
-                .signWith(getSignInKey())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + refreshExpirationMs))
+                .signWith(getSigningKey())
                 .compact();
-
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        String username = extractUsername(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
-    }
-
-    private boolean isTokenExpired(String token) {
-        Date exp = extractClaim(token, Claims::getExpiration);
-        return exp.before(new Date());
-    }
 }
