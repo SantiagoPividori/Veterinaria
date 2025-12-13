@@ -1,6 +1,7 @@
 package com.pividori.veterinaria.mappers;
 
 import com.pividori.veterinaria.dtos.CreateUserRequest;
+import com.pividori.veterinaria.dtos.RegisterRequest;
 import com.pividori.veterinaria.dtos.UserResponse;
 import com.pividori.veterinaria.models.Role;
 import com.pividori.veterinaria.models.User;
@@ -18,14 +19,14 @@ public class UserMapper {
                 user.getRole());
     }
 
-    public static User toEntity(CreateUserRequest createUserRequest, Role defaultRole, PasswordEncoder passwordEncoder) {
+    public static User toEntity(RegisterRequest registerRequest, Role defaultRole, PasswordEncoder passwordEncoder) {
         return User.builder()
-                .name(createUserRequest.name())
-                .lastname(createUserRequest.lastname())
-                .username(createUserRequest.username())
-                .email(createUserRequest.email())
-                .password(passwordEncoder.encode(createUserRequest.password()))
-                .dob(createUserRequest.dob())
+                .name(registerRequest.name())
+                .lastname(registerRequest.lastname())
+                .username(registerRequest.username())
+                .email(registerRequest.email())
+                .password(passwordEncoder.encode(registerRequest.password()))
+                .dob(registerRequest.dob())
                 .role(defaultRole)
                 .build();
     }

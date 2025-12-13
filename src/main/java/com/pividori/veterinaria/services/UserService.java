@@ -19,6 +19,6 @@ public interface UserService {
 
     UserResponse changePassword(Long id, ChangePasswordRequest changePasswordRequest);
 
-    UserResponse register(CreateUserRequest createdUserRequest);
+    User register(RegisterRequest registerRequest);
 
 }

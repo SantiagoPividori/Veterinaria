@@ -1,9 +1,6 @@
 package com.pividori.veterinaria.services;
 
-import com.pividori.veterinaria.dtos.ChangePasswordRequest;
-import com.pividori.veterinaria.dtos.CreateUserRequest;
-import com.pividori.veterinaria.dtos.UpdateUserRequest;
-import com.pividori.veterinaria.dtos.UserResponse;
+import com.pividori.veterinaria.dtos.*;
 import com.pividori.veterinaria.exceptions.*;
 import com.pividori.veterinaria.mappers.UserMapper;
 import com.pividori.veterinaria.models.Role;
@@ -127,29 +124,29 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse register(CreateUserRequest createdUserRequest) {
+    public User register(RegisterRequest registerRequest) {
 
         //Verificaciones.
-        if (userRepository.existsByUsername(createdUserRequest.username())) {
-            log.warn("Username {} is already taken", createdUserRequest.username());
-            throw new UsernameAlreadyTakenException(createdUserRequest.username());
+        if (userRepository.existsByUsername(registerRequest.username())) {
+            log.warn("Username {} is already taken", registerRequest.username());
+            throw new UsernameAlreadyTakenException(registerRequest.username());
         }
 
-        if (userRepository.existsByEmail(createdUserRequest.email())) {
-            log.warn("Email {} is already taken", createdUserRequest.email());
-            throw new EmailAlreadyTakenException(createdUserRequest.email());
+        if (userRepository.existsByEmail(registerRequest.email())) {
+            log.warn("Email {} is already taken", registerRequest.email());
+            throw new EmailAlreadyTakenException(registerRequest.email());
         }
 
         Role defaultRole = roleService.getDefaultClientRole();
 
-        User newUser = UserMapper.toEntity(createdUserRequest, defaultRole, passwordEncoder);
+        User newUser = UserMapper.toEntity(registerRequest, defaultRole, passwordEncoder);
 
         initializeSecurityFlags(newUser);
 
         User savedUser = userRepository.save(newUser);
         log.info("Created new user {}", savedUser.getUsername());
 
-        return UserMapper.toResponse(savedUser);
+        return savedUser;
 
     }
 

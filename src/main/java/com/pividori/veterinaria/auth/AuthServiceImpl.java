@@ -12,6 +12,7 @@ import com.pividori.veterinaria.repositories.UserRepository;
 import com.pividori.veterinaria.security.CustomUserDetails;
 import com.pividori.veterinaria.security.JwtService;
 import com.pividori.veterinaria.security.UserDetailServiceImpl;
+import com.pividori.veterinaria.services.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,41 +25,20 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthServiceImpl {
 
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final UserServiceImpl userServiceImpl;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final UserDetailServiceImpl userDetailService;
 
     public AuthResponse register(RegisterRequest registerRequest) {
-        if (userRepository.findByUsername(registerRequest.username()).isPresent()) {
-            throw new IllegalStateException("Username already taken");
-        }
 
-        Role defaultRole = roleRepository.findByRoleEnum(RoleEnum.CLIENT).
-                orElseThrow(() -> new IllegalStateException("Default role not found"));
+        User newUser = userServiceImpl.register(registerRequest);
+        CustomUserDetails customUserDetails = new CustomUserDetails(newUser);
 
-        User newUser = User.builder()
-                .name(registerRequest.name())
-                .lastname(registerRequest.lastname())
-                .username(registerRequest.username())
-                .email(registerRequest.email())
-                .password(passwordEncoder.encode(registerRequest.password()))
-                .dob(registerRequest.dob())
-                .role(defaultRole)
-                .isEnabled(true)
-                .accountNonExpired(true)
-                .accountNonLocked(true)
-                .credentialNonExpired(true)
-                .build();
+        String token = jwtService.generateToken(customUserDetails);
+        String refreshToken = jwtService.generateRefreshToken(customUserDetails);
 
-        userRepository.save(newUser);
-
-        String token = jwtService.generateToken(new CustomUserDetails(newUser));
-        String refreshToken = jwtService.generateRefreshToken(new CustomUserDetails(newUser));
-
-        return new AuthResponse(token, refreshToken);
+        return new AuthResponse(token, "Bearer", UserMapper.toResponse(newUser));
     }
 
     public AuthResponse login(LoginRequest request) {

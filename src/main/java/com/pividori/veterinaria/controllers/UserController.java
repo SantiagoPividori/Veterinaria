@@ -21,11 +21,11 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/create")
-    public ResponseEntity<UserResponse> register(@RequestBody @Valid CreateUserRequest request) {
-        UserResponse user = userService.register(request);
-        return ResponseEntity.created(URI.create("/user/" + user.id())).body(user);
-    }
+//    @PostMapping("/create")
+//    public ResponseEntity<UserResponse> register(@RequestBody @Valid CreateUserRequest request) {
+//        UserResponse user = userService.register(request);
+//        return ResponseEntity.created(URI.create("/user/" + user.id())).body(user);
+//    }
 
     //ToDo: #Agregar el PreAuthorize con ADMIN.
     @GetMapping("/byusername/{username}")
