@@ -9,7 +9,6 @@ import com.pividori.veterinaria.security.JwtService;
 import com.pividori.veterinaria.security.SecurityConstants;
 import com.pividori.veterinaria.services.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,8 +25,6 @@ public class AuthServiceImpl {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    @Value("${security.jwt.refresh.expiration}")
-    private Long refreshTokenDuration;
 
     public AuthResponse register(RegisterRequest registerRequest) {
 
@@ -37,15 +34,17 @@ public class AuthServiceImpl {
         String accessToken = jwtService.generateAccessToken(customUserDetails);
         String refreshToken = jwtService.generateRefreshToken(customUserDetails);
 
+        Instant now = Instant.now();
         user.setRefreshToken(refreshToken);
-        user.setRefreshTokenExpiration(Instant.now().plus(refreshTokenDuration, ChronoUnit.MILLIS));
+        user.setRefreshTokenExpirationAt(now.plus(jwtService.getRefreshTokenExpirationInMs(), ChronoUnit.MILLIS));
         userRepository.save(user);
 
         return new AuthResponse(
                 accessToken,
                 refreshToken,
                 SecurityConstants.TOKEN_TYPE_BEARER,
-                jwtService.getAccessTokenExpirationInSeconds(),
+                now.plus(jwtService.getTokenExpirationInMs(), ChronoUnit.MILLIS),
+                user.getRefreshTokenExpirationAt(),
                 UserMapper.toResponse(user));
     }
 
@@ -63,15 +62,17 @@ public class AuthServiceImpl {
         String accessToken = jwtService.generateAccessToken(customUserDetails);
         String refreshToken = jwtService.generateRefreshToken(customUserDetails);
 
+        Instant now = Instant.now();
         user.setRefreshToken(refreshToken);
-        user.setRefreshTokenExpiration(Instant.now().plus(refreshTokenDuration, ChronoUnit.MILLIS));
+        user.setRefreshTokenExpirationAt(now.plus(jwtService.getRefreshTokenExpirationInMs(), ChronoUnit.MILLIS));
         userRepository.save(user);
 
         return new AuthResponse(
                 accessToken,
                 refreshToken,
                 SecurityConstants.TOKEN_TYPE_BEARER,
-                jwtService.getAccessTokenExpirationInSeconds(),
+                now.plus(jwtService.getTokenExpirationInMs(), ChronoUnit.MILLIS),
+                user.getRefreshTokenExpirationAt(),
                 UserMapper.toResponse(user));
     }
 
@@ -82,7 +83,7 @@ public class AuthServiceImpl {
         User user = userRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(InvalidRefreshTokenException::new);
 
-        if (user.getRefreshTokenExpiration() == null || user.getRefreshTokenExpiration().isBefore(Instant.now())) {
+        if (user.getRefreshTokenExpirationAt() == null || user.getRefreshTokenExpirationAt().isBefore(Instant.now())) {
             throw new InvalidRefreshTokenException();
         }
 
@@ -96,15 +97,18 @@ public class AuthServiceImpl {
         String newAccessToken = jwtService.generateAccessToken(customUserDetails);
 
         // 5)
+        Instant now = Instant.now();
         String newRefreshToken = jwtService.generateRefreshToken(customUserDetails);
         user.setRefreshToken(newRefreshToken);
+        user.setRefreshTokenExpirationAt(now.plus(jwtService.getRefreshTokenExpirationInMs(), ChronoUnit.MILLIS));
         userRepository.save(user);
 
         return new AuthResponse(
                 newAccessToken,
                 newRefreshToken,
-                "Bearer",
-                jwtService.getAccessTokenExpirationInSeconds(),
+                SecurityConstants.TOKEN_TYPE_BEARER,
+                now.plus(jwtService.getTokenExpirationInMs(), ChronoUnit.MILLIS),
+                user.getRefreshTokenExpirationAt(),
                 UserMapper.toResponse(user)
         );
     }

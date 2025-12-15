@@ -55,7 +55,7 @@ public class User {
     @Column(name = "refresh_token", nullable = false)
     private String refreshToken;
     @Column(name = "refresh_token_expiration", nullable = false)
-    private Instant refreshTokenExpiration;
+    private Instant refreshTokenExpirationAt;
     @OneToOne(fetch = FetchType.EAGER)
     @Column(name = "is_enabled", nullable = false)
     private boolean isEnabled;

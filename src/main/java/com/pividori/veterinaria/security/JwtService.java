@@ -20,9 +20,9 @@ public class JwtService {
     @Value("${security.jwt.secret-key}")
     private String secretKey;
     @Value("${security.jwt.expiration}")
-    private long accessTokenExpirationMs;
+    private long tokenExpirationInMs;
     @Value("${security.jwt.refresh.expiration}")
-    private long refreshTokenExpirationMs;
+    private long refreshTokenExpirationInMs;
 
     //Con este metodo transformamos el string a una key válida para utilizar
     private SecretKey getSigningKey(){
@@ -72,14 +72,18 @@ public class JwtService {
     }
 
     public String generateAccessToken(UserDetails userDetails) {
-        return buildToken(userDetails, accessTokenExpirationMs);
+        return buildToken(userDetails, tokenExpirationInMs);
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
-        return buildToken(userDetails, refreshTokenExpirationMs);
+        return buildToken(userDetails, refreshTokenExpirationInMs);
     }
 
-    public Long getAccessTokenExpirationInSeconds() {
-        return accessTokenExpirationMs / 1000;
+    public Long getTokenExpirationInMs() {
+        return tokenExpirationInMs;
+    }
+
+    public Long getRefreshTokenExpirationInMs() {
+        return refreshTokenExpirationInMs;
     }
 }

@@ -2,11 +2,14 @@ package com.pividori.veterinaria.auth;
 
 import com.pividori.veterinaria.dtos.UserResponse;
 
+import java.time.Instant;
+
 public record AuthResponse(
         String accessToken,
         String refreshToken,
         String tokenType,
-        Long refreshTokenExpiration,
+        Instant expiresAt,
+        Instant  refreshExpiresAt,
         UserResponse userResponse
 ) {
 }
