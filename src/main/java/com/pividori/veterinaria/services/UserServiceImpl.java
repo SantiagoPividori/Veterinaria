@@ -138,17 +138,17 @@ public class UserServiceImpl implements UserService {
             throw new EmailAlreadyTakenException(registerRequest.email());
         }
 
+        //Creamos user y guardamos
         Role defaultRole = roleService.getDefaultClientRole();
-
-        User newUser = UserMapper.toEntity(registerRequest, defaultRole, passwordEncoder);
-
+        User newUser = UserMapper.fromRegisterRequest(registerRequest);
+        newUser.setRole(defaultRole);
+        newUser.setPassword(passwordEncoder.encode(registerRequest.password()));
         initializeSecurityFlags(newUser);
 
         User savedUser = userRepository.save(newUser);
         log.info("Created new user {}", savedUser.getUsername());
 
         return savedUser;
-
     }
 
     private User findUserEntityByIdOrThrow(Long id) {
@@ -164,7 +164,7 @@ public class UserServiceImpl implements UserService {
         newUser.setEnabled(true);
         newUser.setAccountNonExpired(true);
         newUser.setAccountNonLocked(true);
-        newUser.setCredentialNonExpired(true);
+        newUser.setCredentialsNonExpired(true);
     }
 
 }

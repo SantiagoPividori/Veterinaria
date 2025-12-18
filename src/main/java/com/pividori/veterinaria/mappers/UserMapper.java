@@ -2,11 +2,11 @@ package com.pividori.veterinaria.mappers;
 
 import com.pividori.veterinaria.auth.RegisterRequest;
 import com.pividori.veterinaria.dtos.UserResponse;
-import com.pividori.veterinaria.models.Role;
 import com.pividori.veterinaria.models.User;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
-public class UserMapper {
+public final class UserMapper {
+
+    private UserMapper() {}
 
     public static UserResponse toResponse(User user) {
         return new UserResponse(user.getId(),
@@ -18,15 +18,13 @@ public class UserMapper {
                 user.getRole());
     }
 
-    public static User toEntity(RegisterRequest registerRequest, Role defaultRole, PasswordEncoder passwordEncoder) {
+    public static User fromRegisterRequest(RegisterRequest registerRequest) {
         return User.builder()
                 .name(registerRequest.name())
                 .lastname(registerRequest.lastname())
                 .username(registerRequest.username())
                 .email(registerRequest.email())
-                .password(passwordEncoder.encode(registerRequest.password()))
                 .dob(registerRequest.dob())
-                .role(defaultRole)
                 .build();
     }
 }
