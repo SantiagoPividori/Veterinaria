@@ -63,7 +63,9 @@ public class JwtService {
         //¿Resultado? Un string con toda la información.
 
         if (TYPE_REFRESH.equals(tokenType)) {
-            return builder.compact();
+            String jti = UUID.randomUUID().toString();
+            return builder.id(jti)
+                    .compact();
         }
 
         return builder.claim(CLAIM_ROLE, role)
@@ -104,6 +106,10 @@ public class JwtService {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+    }
+
+    public String extractJti(String token) {
+        return extractAllClaims(token).getId();
     }
 
     public String generateAccessToken(UserDetails userDetails) {

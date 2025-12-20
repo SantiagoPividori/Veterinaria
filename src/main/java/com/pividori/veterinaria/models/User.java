@@ -38,8 +38,8 @@ public class User {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Role role;
-    @Column(name = "refresh_token", nullable = false)
-    private String refreshToken;
+    @Column(name = "refresh_token_jti", nullable = false)
+    private String refreshTokenJti;
     @Column(name = "refresh_token_expiration_at", nullable = false)
     private Instant refreshTokenExpirationAt;
     @Column(name = "is_enabled", nullable = false)

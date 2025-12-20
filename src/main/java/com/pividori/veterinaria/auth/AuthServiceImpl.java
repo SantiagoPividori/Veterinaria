@@ -36,7 +36,7 @@ public class AuthServiceImpl {
         String refreshToken = jwtService.generateRefreshToken(customUserDetails);
 
         Instant now = Instant.now();
-        user.setRefreshToken(refreshToken);
+        user.setRefreshTokenJti(jwtService.extractJti(refreshToken));
         user.setRefreshTokenExpirationAt(now.plus(jwtService.getRefreshTokenExpirationInMs(), ChronoUnit.MILLIS));
         userRepository.save(user);
 
@@ -64,7 +64,7 @@ public class AuthServiceImpl {
         String refreshToken = jwtService.generateRefreshToken(customUserDetails);
 
         Instant now = Instant.now();
-        user.setRefreshToken(refreshToken);
+        user.setRefreshTokenJti(jwtService.extractJti(refreshToken));
         user.setRefreshTokenExpirationAt(now.plus(jwtService.getRefreshTokenExpirationInMs(), ChronoUnit.MILLIS));
         userRepository.save(user);
 
@@ -107,7 +107,7 @@ public class AuthServiceImpl {
         // 5)
         Instant now = Instant.now();
         String newRefreshToken = jwtService.generateRefreshToken(customUserDetails);
-        user.setRefreshToken(newRefreshToken);
+        user.setRefreshTokenJti(jwtService.extractJti(newRefreshToken));
         user.setRefreshTokenExpirationAt(now.plus(jwtService.getRefreshTokenExpirationInMs(), ChronoUnit.MILLIS));
         userRepository.save(user);
 
