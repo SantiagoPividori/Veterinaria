@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(http -> {
 //                    //Configure public endpoints
                     http.requestMatchers(HttpMethod.POST, "/auth/**").permitAll();
+                    http.requestMatchers(HttpMethod.GET, "/api/v1/users/**").permitAll();
 //                    //Configure private endpoints
 //                    http.requestMatchers(HttpMethod.GET, "/auth/holaPremium").hasAuthority("READ");
 //                    //Configure rest of endpoints

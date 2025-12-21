@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.pividori</groupId>
-    <artifactId>Veterinaria</artifactId>
+    <artifactId>veterinaria-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Veterinaria</name>
     <description>Sistema de gestión de turnos y venta de productos</description>
