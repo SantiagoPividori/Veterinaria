@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.pividori.veterinaria.api.ApiPath.API_V1;
+import static com.pividori.veterinaria.api.ApiPaths.API_V1;
 
 @RestController
 @RequiredArgsConstructor
