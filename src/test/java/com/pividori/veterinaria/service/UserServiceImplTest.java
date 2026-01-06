@@ -1,13 +1,13 @@
 package com.pividori.veterinaria.service;
 
-import com.pividori.veterinaria.dtos.ChangePasswordRequest;
-import com.pividori.veterinaria.dtos.UserResponse;
+import com.pividori.veterinaria.user.infrastucture.in.dtos.ChangePasswordRequest;
+import com.pividori.veterinaria.user.infrastucture.in.dtos.UserResponse;
 import com.pividori.veterinaria.exceptions.PasswordEqualsException;
 import com.pividori.veterinaria.exceptions.PasswordIncorrectException;
 import com.pividori.veterinaria.exceptions.UserNotFoundException;
-import com.pividori.veterinaria.models.User;
-import com.pividori.veterinaria.repositories.UserRepository;
-import com.pividori.veterinaria.services.UserServiceImpl;
+import com.pividori.veterinaria.user.domain.User;
+import com.pividori.veterinaria.user.infrastucture.out.UserRepository;
+import com.pividori.veterinaria.user.application.UserServiceImpl;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

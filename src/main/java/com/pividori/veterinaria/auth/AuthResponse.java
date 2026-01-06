@@ -1,6 +1,6 @@
 package com.pividori.veterinaria.auth;
 
-import com.pividori.veterinaria.dtos.UserResponse;
+import com.pividori.veterinaria.user.infrastucture.in.dtos.UserResponse;
 
 import java.time.Instant;
 
