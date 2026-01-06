@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static com.pividori.veterinaria.api.ApiPaths.API_V1;
+import static com.pividori.veterinaria.shared.api.ApiPaths.API_V1;
 
 @RestController
 @RequestMapping(API_V1 + "/auth")
